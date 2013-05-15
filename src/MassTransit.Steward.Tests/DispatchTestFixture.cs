@@ -20,7 +20,8 @@ namespace MassTransit.Steward.Tests
     using BusConfigurators;
     using Configurators;
     using Contracts;
-    using Core;
+    using Core.Agents;
+    using Core.Consumers;
     using EndpointConfigurators;
     using Exceptions;
     using Magnum.Extensions;
@@ -31,7 +32,7 @@ namespace MassTransit.Steward.Tests
 
 
     [TestFixture]
-    public abstract class CommandTestFixture
+    public abstract class DispatchTestFixture
     {
         readonly EndpointFactoryConfiguratorImpl _endpointFactoryConfigurator;
         EndpointCache _endpointCache;
@@ -39,15 +40,15 @@ namespace MassTransit.Steward.Tests
         static Timer _timer;
         static CancellationTokenSource _cancellationTokenSource;
 
-        protected CommandTestFixture()
+        protected DispatchTestFixture()
             : this(new Uri("loopback://localhost"))
         {
             TestTimeout = Debugger.IsAttached
-                              ? 30.Seconds()
-                              : 5.Minutes();
+                ? 30.Seconds()
+                : 5.Minutes();
         }
 
-        protected CommandTestFixture(Uri baseUri)
+        protected DispatchTestFixture(Uri baseUri)
         {
             BaseUri = baseUri;
 
@@ -56,14 +57,14 @@ namespace MassTransit.Steward.Tests
             _endpointFactoryConfigurator = new EndpointFactoryConfiguratorImpl(defaultSettings);
             _endpointFactoryConfigurator.SetPurgeOnStartup(true);
 
-            CommandTestContexts = new Dictionary<Type, CommandTestContext>();
+            CommandTestContexts = new Dictionary<Type, DispatchTestContext>();
         }
 
         protected Uri LocalUri { get; private set; }
         protected IServiceBus LocalBus { get; private set; }
         protected IEndpoint DispatchEndpoint { get; private set; }
         protected Uri BaseUri { get; private set; }
-        protected IDictionary<Type, CommandTestContext> CommandTestContexts { get; private set; }
+        protected IDictionary<Type, DispatchTestContext> CommandTestContexts { get; private set; }
         protected IEndpointFactory EndpointFactory { get; private set; }
         protected IEndpointCache EndpointCache { get; set; }
 
@@ -100,24 +101,24 @@ namespace MassTransit.Steward.Tests
 
             LocalUri = new Uri(BaseUri, "local");
 
-            AddCommandContext<ExecuteCommandConsumer, DispatchCommand>(() =>
+            AddCommandContext<DispatchMessageConsumer, DispatchMessage>(() =>
                 {
-                    var agent = new BusCommandExecutionAgent(LocalBus);
+                    var agent = new MessageDispatchAgent(LocalBus);
 
-                    return new ExecuteCommandConsumer(agent);
+                    return new DispatchMessageConsumer(agent);
                 });
 
             SetupCommands();
 
             LocalBus = CreateServiceBus(ConfigureLocalBus);
 
-            DispatchEndpoint = LocalBus.GetEndpoint(GetActivityContext<DispatchCommand>().ExecuteUri);
+            DispatchEndpoint = LocalBus.GetEndpoint(GetActivityContext<DispatchMessage>().ExecuteUri);
         }
 
         [TestFixtureTearDown]
         public void ActivityTestFixtureFixtureTeardown()
         {
-            foreach (CommandTestContext activityTestContext in CommandTestContexts.Values)
+            foreach (DispatchTestContext activityTestContext in CommandTestContexts.Values)
                 activityTestContext.Dispose();
 
             LocalBus.Dispose();
@@ -148,7 +149,7 @@ namespace MassTransit.Steward.Tests
             where T : class
             where TConsumer : class, Consumes<T>.Context
         {
-            var context = new CommandTestContext<TConsumer, T>(BaseUri, consumerFactory);
+            var context = new DispatchTestContext<TConsumer, T>(BaseUri, consumerFactory);
 
             CommandTestContexts.Add(typeof(T), context);
         }
@@ -164,7 +165,7 @@ namespace MassTransit.Steward.Tests
                 {
                     configurator(x);
 
-                    foreach (CommandTestContext context in CommandTestContexts.Values)
+                    foreach (DispatchTestContext context in CommandTestContexts.Values)
                         context.ConfigureServiceBus(x);
                 });
         }
@@ -175,7 +176,7 @@ namespace MassTransit.Steward.Tests
             return CommandTestContexts.Values.All(x => x.ExecuteBus.HasSubscription<T>().Any());
         }
 
-        protected CommandTestContext GetActivityContext<T>()
+        protected DispatchTestContext GetActivityContext<T>()
         {
             return CommandTestContexts[typeof(T)];
         }

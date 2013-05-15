@@ -47,12 +47,24 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusCommandExecutionAgent.cs" />
-    <Compile Include="CommandExecutionContext.cs" />
-    <Compile Include="CommandMessageContext.cs" />
-    <Compile Include="CommandExecutionAgent.cs" />
-    <Compile Include="ConsumerCommandExecutionContext.cs" />
-    <Compile Include="ExecuteCommandConsumer.cs" />
+    <Compile Include="Agents\MessageDispatchAgent.cs" />
+    <Compile Include="Consumers\DispatchMessageConsumer.cs" />
+    <Compile Include="Agents\SendMessageContext.cs" />
+    <Compile Include="DispatchAgent.cs" />
+    <Compile Include="Consumers\ConsumerDispatchContext.cs" />
+    <Compile Include="DispatchPolicy.cs" />
+    <Compile Include="Results\AcceptDispatchResult.cs" />
+    <Compile Include="Results\DelayDispatchResult.cs" />
+    <Compile Include="Results\DiscardDispatchResult.cs" />
+    <Compile Include="Contexts\DispatchContextBase.cs" />
+    <Compile Include="Results\RefuseDispatchResult.cs" />
+    <Compile Include="Results\RejectDispatchResult.cs" />
+    <Compile Include="MessageDispatchContext.cs" />
+    <Compile Include="MessageDispatchPolicy.cs" />
+    <Compile Include="Policies\AcceptDispatchPolicy.cs" />
+    <Compile Include="DispatchContext.cs" />
+    <Compile Include="Policies\DelegateMessageDispatchPolicy.cs" />
+    <Compile Include="DispatchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

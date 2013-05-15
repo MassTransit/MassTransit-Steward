@@ -10,25 +10,25 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Steward.Core
+namespace MassTransit.Steward.Core.Agents
 {
     using System;
     using System.IO;
-    using MassTransit.Context;
-    using MassTransit.Serialization.Custom;
+    using Context;
+    using Serialization.Custom;
 
 
-    public class CommandMessageContext :
+    public class SendMessageContext :
         MessageContext,
         ISendContext
     {
         readonly string _body;
 
-        public CommandMessageContext(string body)
+        public SendMessageContext(string body)
         {
             _body = body;
             Id = NewId.NextGuid();
-            DeclaringMessageType = typeof(CommandMessageContext);
+            DeclaringMessageType = typeof(SendMessageContext);
         }
 
         public void SerializeTo(Stream stream)

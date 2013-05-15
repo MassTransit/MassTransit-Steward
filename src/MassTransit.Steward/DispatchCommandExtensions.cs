@@ -25,42 +25,42 @@ namespace MassTransit.Steward
         /// </summary>
         /// <typeparam name="T">The command type</typeparam>
         /// <param name="endpoint">The dispatcher endpoint</param>
-        /// <param name="command">The command</param>
+        /// <param name="payload">The command</param>
         /// <param name="destination">The destination address of the service endpoint</param>
         /// <param name="resources">The resources required by the command</param>
         /// <returns>A handle to the dispatch</returns>
-        public static DispatchCommandHandle<T> DispatchCommand<T>(this IEndpoint endpoint, T command, Uri destination,
+        public static DispatchMessageHandle<T> DispatchMessage<T>(this IEndpoint endpoint, T payload, Uri destination,
             params Uri[] resources)
             where T : class
         {
-            var message = new DispatchCommandMessage<T>(destination, command, resources);
+            var message = new DispatchCommandMessage<T>(destination, payload, resources);
 
-            endpoint.Send<DispatchCommand<T>>(message);
+            endpoint.Send<DispatchMessage<T>>(message);
 
-            return new DispatchedCommandHandle<T>(message.DispatchId, message.CreateTime, message.Destination, command);
+            return new DispatchedMessageHandle<T>(message.DispatchId, message.CreateTime, message.Destination, payload);
         }
 
 
         class DispatchCommandMessage<T> :
-            DispatchCommand<T>
+            DispatchMessage<T>
             where T : class
         {
-            public DispatchCommandMessage(Uri destination, T command, IEnumerable<Uri> resources)
+            public DispatchCommandMessage(Uri destination, T payload, IEnumerable<Uri> resources)
             {
                 if (destination == null)
                     throw new ArgumentNullException("destination");
-                if (command == null)
-                    throw new ArgumentNullException("command");
+                if (payload == null)
+                    throw new ArgumentNullException("payload");
                 if (resources == null)
                     throw new ArgumentNullException("resources");
 
                 Destination = destination;
-                Command = command;
+                Payload = payload;
 
                 DispatchId = NewId.NextGuid();
                 CreateTime = DateTime.UtcNow;
 
-                CommandTypes = typeof(T).GetMessageTypes()
+                PayloadTypes = typeof(T).GetMessageTypes()
                                         .Select(x => new MessageUrn(x).ToString())
                                         .ToList();
 
@@ -70,28 +70,28 @@ namespace MassTransit.Steward
             public Guid DispatchId { get; private set; }
             public DateTime CreateTime { get; private set; }
             public IList<Uri> Resources { get; private set; }
-            public IList<string> CommandTypes { get; private set; }
+            public IList<string> PayloadTypes { get; private set; }
             public Uri Destination { get; private set; }
-            public T Command { get; private set; }
+            public T Payload { get; private set; }
         }
 
 
-        class DispatchedCommandHandle<T> :
-            DispatchCommandHandle<T>
+        class DispatchedMessageHandle<T> :
+            DispatchMessageHandle<T>
             where T : class
         {
-            public DispatchedCommandHandle(Guid commandId, DateTime createTime, Uri destination, T command)
+            public DispatchedMessageHandle(Guid dispatchId, DateTime createTime, Uri destination, T payload)
             {
-                DispatchId = commandId;
+                DispatchId = dispatchId;
                 CreateTime = createTime;
                 Destination = destination;
-                Command = command;
+                Payload = payload;
             }
 
             public Guid DispatchId { get; private set; }
             public DateTime CreateTime { get; private set; }
             public Uri Destination { get; private set; }
-            public T Command { get; private set; }
+            public T Payload { get; private set; }
         }
     }
 }

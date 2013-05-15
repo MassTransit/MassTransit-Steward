@@ -49,7 +49,7 @@ namespace MassTransit.Steward.Contracts
         /// <summary>
         /// The message types implemented by the command message
         /// </summary>
-        IList<string> CommandType { get; }
+        IList<string> DispatchTypes { get; }
 
         /// <summary>
         /// The destination where the command was sent for execution

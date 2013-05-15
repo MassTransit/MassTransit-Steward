@@ -12,19 +12,9 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.Steward.Core
 {
-    public interface CommandExecutionAgent
+    public interface MessageDispatchPolicy<in T>
+        where T : class
     {
-        void Execute(CommandExecutionContext context);
+        DispatchResult Check(MessageDispatchContext<T> context);
     }
-
-    // agent is on behalf of the caller
-
-    // intermediary is in between the caller and the service
-
-    // proxy is in front of the service, save that for a real endpoint proxy
-
-    // request is immediate, in need of a response
-
-    // execute is eventual, no response
-
 }

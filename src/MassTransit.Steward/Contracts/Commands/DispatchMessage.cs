@@ -19,7 +19,7 @@ namespace MassTransit.Steward.Contracts
     /// <summary>
     /// Execute a command using a resource
     /// </summary>
-    public interface DispatchCommand
+    public interface DispatchMessage
     {
         /// <summary>
         /// Uniquely identifies the command to execute
@@ -39,7 +39,7 @@ namespace MassTransit.Steward.Contracts
         /// <summary>
         /// The message types implemented by the command message
         /// </summary>
-        IList<string> CommandTypes { get; }
+        IList<string> PayloadTypes { get; }
 
         /// <summary>
         /// The destination where the command message should be sent for execution
@@ -52,12 +52,12 @@ namespace MassTransit.Steward.Contracts
     /// A strongly typed version of the execute command
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface DispatchCommand<out T> :
-        DispatchCommand
+    public interface DispatchMessage<out T> :
+        DispatchMessage
     {
         /// <summary>
-        /// The command to be published
+        /// The message to be dispatched
         /// </summary>
-        T Command { get; }
+        T Payload { get; }
     }
 }

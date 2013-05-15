@@ -10,13 +10,16 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Steward.Contracts
+namespace MassTransit.Steward.Core.Results
 {
-    /// <summary>
-    /// Published when a command is declined due to a resource availability issue
-    /// </summary>
-    public interface DispatchDeclined
+    public class RefuseDispatchResult :
+        DispatchResult
     {
-         
+        readonly string _reason;
+
+        public RefuseDispatchResult(string reason)
+        {
+            _reason = reason;
+        }
     }
 }

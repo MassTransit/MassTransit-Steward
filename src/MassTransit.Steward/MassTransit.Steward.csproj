@@ -42,12 +42,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DispatchCommandHandle.cs" />
+    <Compile Include="DispatchMessageHandle.cs" />
     <Compile Include="DispatchException.cs" />
     <Compile Include="DispatchHandle.cs" />
     <Compile Include="Contracts\Commands\CancelDispatch.cs" />
     <Compile Include="Contracts\Events\DispatchCanceled.cs" />
-    <Compile Include="Contracts\Events\DispatchDeclined.cs" />
     <Compile Include="Contracts\Events\DispatchAccepted.cs" />
     <Compile Include="Contracts\Events\DispatchDelayed.cs" />
     <Compile Include="Contracts\Events\DispatchDiscarded.cs" />
@@ -55,7 +54,7 @@
     <Compile Include="Contracts\Events\DispatchRejected.cs" />
     <Compile Include="Contracts\Commands\DisableResource.cs" />
     <Compile Include="Contracts\Commands\EnableResource.cs" />
-    <Compile Include="Contracts\Commands\DispatchCommand.cs" />
+    <Compile Include="Contracts\Commands\DispatchMessage.cs" />
     <Compile Include="Contracts\Events\ResourceAccessFailed.cs" />
     <Compile Include="Contracts\Events\ResourceDisabled.cs" />
     <Compile Include="Contracts\Events\ResourceImpaired.cs" />

@@ -10,7 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Steward.Core
+namespace MassTransit.Steward.Core.Agents
 {
     using System;
     using System.Collections.Generic;
@@ -19,18 +19,18 @@ namespace MassTransit.Steward.Core
     using Logging;
 
 
-    public class BusCommandExecutionAgent :
-        CommandExecutionAgent
+    public class MessageDispatchAgent :
+        DispatchAgent
     {
         readonly IServiceBus _bus;
-        readonly ILog _log = Logger.Get<BusCommandExecutionAgent>();
+        readonly ILog _log = Logger.Get<MessageDispatchAgent>();
 
-        public BusCommandExecutionAgent(IServiceBus bus)
+        public MessageDispatchAgent(IServiceBus bus)
         {
             _bus = bus;
         }
 
-        public void Execute(CommandExecutionContext context)
+        public void Execute(DispatchContext context)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace MassTransit.Steward.Core
 
                 IEndpoint endpoint = _bus.GetEndpoint(context.Destination);
 
-                ISendContext messageContext = CreateMessageContext(context, sourceAddress);
+                ISendContext messageContext = CreateSendContext(context, sourceAddress);
 
                 endpoint.OutboundTransport.Send(messageContext);
 
@@ -47,14 +47,15 @@ namespace MassTransit.Steward.Core
             catch (Exception ex)
             {
                 string message = string.Format(CultureInfo.InvariantCulture,
-                    "An exception occurred sending message {0} to {1}", context.MessageType, context.Destination);
+                    "An exception occurred sending message {0} to {1}", string.Join(",", context.DispatchTypes),
+                    context.Destination);
                 _log.Error(message, ex);
 
                 throw new DispatchException(message, ex);
             }
         }
 
-        void PublishCommandForwardedEvent(CommandExecutionContext context)
+        void PublishCommandForwardedEvent(DispatchContext context)
         {
             var @event = new DispatchAcceptedEvent(context);
 
@@ -62,9 +63,9 @@ namespace MassTransit.Steward.Core
         }
 
 
-        ISendContext CreateMessageContext(CommandExecutionContext executionContext, Uri sourceAddress)
+        ISendContext CreateSendContext(DispatchContext executionContext, Uri sourceAddress)
         {
-            var context = new CommandMessageContext(executionContext.Body);
+            var context = new SendMessageContext(executionContext.Body);
 
             context.SetSourceAddress(sourceAddress);
 
@@ -72,7 +73,6 @@ namespace MassTransit.Steward.Core
             context.SetResponseAddress(executionContext.ResponseAddress);
             context.SetFaultAddress(executionContext.FaultAddress);
 
-            context.SetMessageId(executionContext.MessageId);
             context.SetRequestId(executionContext.RequestId);
             context.SetConversationId(executionContext.ConversationId);
             context.SetCorrelationId(executionContext.CorrelationId);
@@ -94,9 +94,9 @@ namespace MassTransit.Steward.Core
         class DispatchAcceptedEvent :
             DispatchAccepted
         {
-            readonly CommandExecutionContext _context;
+            readonly DispatchContext _context;
 
-            public DispatchAcceptedEvent(CommandExecutionContext context)
+            public DispatchAcceptedEvent(DispatchContext context)
             {
                 EventId = NewId.NextGuid();
                 Timestamp = DateTime.UtcNow;
@@ -106,7 +106,7 @@ namespace MassTransit.Steward.Core
 
             public Guid DispatchId
             {
-                get { return _context.CommandId; }
+                get { return _context.DispatchId; }
             }
 
             public DateTime CreateTime
@@ -119,9 +119,9 @@ namespace MassTransit.Steward.Core
                 get { return _context.Resources; }
             }
 
-            public IList<string> CommandType
+            public IList<string> DispatchTypes
             {
-                get { return _context.CommandType; }
+                get { return _context.DispatchTypes; }
             }
 
             public Uri Destination

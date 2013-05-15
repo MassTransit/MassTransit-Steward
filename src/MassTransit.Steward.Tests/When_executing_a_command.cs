@@ -13,31 +13,34 @@
 namespace MassTransit.Steward.Tests
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using Contracts;
-    using Magnum.Extensions;
     using NUnit.Framework;
 
 
     [TestFixture]
     public class When_executing_a_command :
-        CommandTestFixture
+        DispatchTestFixture
     {
         [Test]
         public void Should_execute()
         {
+            var received = new TaskCompletionSource<MagicMade>(TestCancellationToken);
+            LocalBus.SubscribeHandler<MagicMade>(x => received.SetResult(x));
+            Assert.IsTrue(WaitForSubscription<MagicMade>());
+
+
             Uri commandUri = GetActivityContext<MakeMagicHappen>().ExecuteUri;
             var command = new MakeMagicHappenCommand("Hello, World.");
 
 
-            DispatchCommandHandle<MakeMagicHappenCommand> handle = DispatchEndpoint.DispatchCommand(command, commandUri);
+            DispatchMessageHandle<MakeMagicHappenCommand> handle = DispatchEndpoint.DispatchMessage(command, commandUri);
 
+            Assert.IsTrue(_accepted.Task.Wait(TestTimeout));
             DispatchAccepted accepted = _accepted.Task.Result;
-
             Assert.AreEqual(handle.DispatchId, accepted.DispatchId);
 
-            Assert.IsTrue(MagicMakingConsumer.Happened.WaitOne(8.Seconds()));
+            Assert.IsTrue(received.Task.Wait(TestTimeout));
         }
 
         TaskCompletionSource<DispatchAccepted> _accepted;
@@ -77,24 +80,17 @@ namespace MassTransit.Steward.Tests
     }
 
 
+    class MagicMade
+    {
+    }
+
+
     class MagicMakingConsumer :
         Consumes<MakeMagicHappen>.Context
     {
-        static MagicMakingConsumer()
-        {
-            Happened = new ManualResetEvent(false);
-        }
-
-        public MagicMakingConsumer()
-        {
-            Happened.Reset();
-        }
-
-        public static ManualResetEvent Happened { get; private set; }
-
         public void Consume(IConsumeContext<MakeMagicHappen> context)
         {
-            Happened.Set();
+            context.Bus.Publish(new MagicMade());
         }
     }
 }

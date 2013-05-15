@@ -17,7 +17,7 @@ namespace MassTransit.Steward.Tests
     using Subscriptions.Coordinator;
 
 
-    public interface CommandTestContext :
+    public interface DispatchTestContext :
         IDisposable
     {
         Uri ExecuteUri { get; }
@@ -28,15 +28,15 @@ namespace MassTransit.Steward.Tests
     }
 
 
-    public class CommandTestContext<TConsumer, T> :
-        CommandTestContext
+    public class DispatchTestContext<TConsumer, T> :
+        DispatchTestContext
         where T : class
         where TConsumer : class, Consumes<T>.Context
     {
         readonly Func<TConsumer> _consumerFactory;
         SubscriptionLoopback _executeLoopback;
 
-        public CommandTestContext(Uri baseUri, Func<TConsumer> consumerFactory)
+        public DispatchTestContext(Uri baseUri, Func<TConsumer> consumerFactory)
         {
             _consumerFactory = consumerFactory;
 

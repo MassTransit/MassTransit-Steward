@@ -10,75 +10,51 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Steward.Core
+namespace MassTransit.Steward.Core.Consumers
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Contexts;
     using Contracts;
 
 
-    public class ConsumerCommandExecutionContext :
-        CommandExecutionContext
+    public class ConsumerDispatchContext :
+        DispatchContextBase,
+        DispatchContext
     {
         readonly string _body;
-        readonly IConsumeContext<DispatchCommand> _messageContext;
+        readonly IConsumeContext<DispatchMessage> _messageContext;
 
-        public ConsumerCommandExecutionContext(IConsumeContext<DispatchCommand> messageContext, string body)
+        public ConsumerDispatchContext(IConsumeContext<DispatchMessage> messageContext, string body)
         {
             _messageContext = messageContext;
             _body = body;
         }
 
-        public Guid CommandId
+        public Guid DispatchId
         {
             get { return _messageContext.Message.DispatchId; }
         }
 
         public DateTime CreateTime
         {
-            get
-            {
-                return _messageContext.Message.CreateTime;
-                ;
-            }
+            get { return _messageContext.Message.CreateTime; }
         }
 
         public IList<Uri> Resources
         {
-            get
-            {
-                return _messageContext.Message.Resources;
-                ;
-            }
+            get { return _messageContext.Message.Resources; }
         }
 
-        public IList<string> CommandType
+        public IList<string> DispatchTypes
         {
-            get
-            {
-                return _messageContext.Message.CommandTypes;
-                ;
-            }
+            get { return _messageContext.Message.PayloadTypes; }
         }
 
         public Uri Destination
         {
-            get
-            {
-                return _messageContext.Message.Destination;
-                ;
-            }
-        }
-
-        public string MessageId
-        {
-            get { return _messageContext.MessageId; }
-        }
-
-        public string MessageType
-        {
-            get { return _messageContext.MessageType; }
+            get { return _messageContext.Message.Destination; }
         }
 
         public string ContentType
@@ -136,7 +112,7 @@ namespace MassTransit.Steward.Core
             get { return _messageContext.RetryCount; }
         }
 
-        public IDictionary<string, string> Headers
+        public IEnumerable<KeyValuePair<string, string>> Headers
         {
             get { return _messageContext.Headers.ToDictionary(x => x.Key, x => x.Value); }
         }
@@ -144,6 +120,13 @@ namespace MassTransit.Steward.Core
         public string Body
         {
             get { return _body; }
+        }
+
+        public bool TryGetContext<T>(out MessageDispatchContext<T> context)
+            where T : class
+        {
+            context = null;
+            return false;
         }
     }
 }

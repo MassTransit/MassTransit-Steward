@@ -1,4 +1,4 @@
-﻿// Copyright 2007-2013 Chris Patterson
+// Copyright 2007-2013 Chris Patterson
 //  
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 // this file except in compliance with the License. You may obtain a copy of the 
@@ -10,7 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Steward.Core
+namespace MassTransit.Steward.Core.Consumers
 {
     using System;
     using System.Collections.Generic;
@@ -19,27 +19,27 @@ namespace MassTransit.Steward.Core
     using System.Text;
     using System.Xml.Linq;
     using Contracts;
-    using MassTransit.Logging;
+    using Logging;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
 
-    public class ExecuteCommandConsumer :
-        Consumes<DispatchCommand>.Context
+    public class DispatchMessageConsumer :
+        Consumes<DispatchMessage>.Context
     {
-        static readonly ILog _log = Logger.Get<ExecuteCommandConsumer>();
-        readonly CommandExecutionAgent _agent;
+        static readonly ILog _log = Logger.Get<DispatchMessageConsumer>();
+        readonly DispatchAgent _agent;
 
-        public ExecuteCommandConsumer(CommandExecutionAgent agent)
+        public DispatchMessageConsumer(DispatchAgent agent)
         {
             _agent = agent;
         }
 
-        public void Consume(IConsumeContext<DispatchCommand> context)
+        public void Consume(IConsumeContext<DispatchMessage> context)
         {
             if (_log.IsDebugEnabled)
             {
-                _log.DebugFormat("ExecuteCommand: {0} at {1}", context.Message.DispatchId,
+                _log.DebugFormat("DispatchMessage: {0} at {1}", context.Message.DispatchId,
                     context.Message.CreateTime);
             }
 
@@ -61,7 +61,7 @@ namespace MassTransit.Steward.Core
             else
                 throw new InvalidOperationException("Only JSON and XML messages can be executed");
 
-            var executionContext = new ConsumerCommandExecutionContext(context, body);
+            var executionContext = new ConsumerDispatchContext(context, body);
 
             _agent.Execute(executionContext);
         }
@@ -74,8 +74,8 @@ namespace MassTransit.Steward.Core
 
             JToken message = envelope["message"];
 
-            JToken command = message["command"];
-            JToken commandType = message["commandTypes"];
+            JToken command = message["payload"];
+            JToken commandType = message["payloadTypes"];
 
             envelope["message"] = command;
             envelope["messageType"] = commandType;
@@ -94,11 +94,11 @@ namespace MassTransit.Steward.Core
                 XElement destinationAddress =
                     (from a in envelope.Descendants("destinationAddress") select a).Single();
 
-                XElement message = (from m in envelope.Descendants("message") select m).Single();
+                XElement message = (from m in envelope.Descendants("message") select m).First();
                 IEnumerable<XElement> messageType = (from mt in envelope.Descendants("messageType") select mt);
 
-                XElement command = (from p in message.Descendants("command") select p).Single();
-                IEnumerable<XElement> commandType = (from pt in message.Descendants("commandTypes") select pt);
+                XElement command = (from p in message.Descendants("payload") select p).First();
+                IEnumerable<XElement> commandType = (from pt in message.Descendants("payloadTypes") select pt);
 
                 message.Remove();
                 messageType.Remove();
@@ -113,14 +113,6 @@ namespace MassTransit.Steward.Core
 
                 return document.ToString();
             }
-        }
-
-        static string ToString(Uri uri)
-        {
-            if (uri == null)
-                return "";
-
-            return uri.ToString();
         }
     }
 }

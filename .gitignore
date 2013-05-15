@@ -4,7 +4,7 @@ build_artifacts/*
 *.user
 packages
 *.dotCover
-
+NuGet.exe
 
 src/logs/*
 

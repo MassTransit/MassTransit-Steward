@@ -43,14 +43,25 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsistentHash_Specs.cs" />
     <Compile Include="DispatchTestContext.cs" />
     <Compile Include="DispatchTestFixture.cs" />
     <Compile Include="EndpointCacheProxy.cs" />
+    <Compile Include="HttpClient_Specs.cs" />
+    <Compile Include="HttpProxyConsumer.cs" />
     <Compile Include="Policies\Delegate_Specs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stethescope_Specs.cs" />
+    <Compile Include="TaskExtensions.cs" />
     <Compile Include="When_executing_a_command.cs" />
   </ItemGroup>
   <ItemGroup>

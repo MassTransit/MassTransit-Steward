@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Magnum">
@@ -45,14 +47,37 @@
     <Reference Include="System.Core" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="Taskell">
+      <HintPath>..\packages\Taskell.0.1.2\lib\net40\Taskell.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\MessageDispatchAgent.cs" />
+    <Compile Include="Availability\CandidateBehavior.cs" />
+    <Compile Include="Availability\FollowerBehavior.cs" />
+    <Compile Include="Availability\LeaderBehavior.cs" />
+    <Compile Include="Availability\Messages\RequestVoteRequest.cs" />
+    <Compile Include="Availability\Messages\VoteAgainstResponse.cs" />
+    <Compile Include="Availability\Messages\VoteForResponse.cs" />
+    <Compile Include="Availability\NodeAvailabilityBehavior.cs" />
+    <Compile Include="Availability\NodeAvailabilityBehaviorConsumers.cs" />
+    <Compile Include="Availability\NodeState.cs" />
+    <Compile Include="Availability\Peer.cs" />
+    <Compile Include="Availability\Peers.cs" />
+    <Compile Include="Availability\ServiceNode.cs" />
+    <Compile Include="Availability\ServiceNodeConsumer.cs" />
+    <Compile Include="Availability\ServiceNodePeer.cs" />
+    <Compile Include="Availability\StoppedBehavior.cs" />
     <Compile Include="Consumers\DispatchMessageConsumer.cs" />
     <Compile Include="Agents\SendMessageContext.cs" />
     <Compile Include="DispatchAgent.cs" />
     <Compile Include="Consumers\ConsumerDispatchContext.cs" />
     <Compile Include="DispatchPolicy.cs" />
+    <Compile Include="Distribution\ConsistentHashing\ConsistentHashDistributionStrategy.cs" />
+    <Compile Include="Distribution\ConsistentHashing\HashGenerator.cs" />
+    <Compile Include="Distribution\ConsistentHashing\HashKeyProvider.cs" />
+    <Compile Include="Distribution\ConsistentHashing\Murmur3AUnsafe.cs" />
+    <Compile Include="Distribution\DistributionStrategy.cs" />
     <Compile Include="Results\AcceptDispatchResult.cs" />
     <Compile Include="Results\DelayDispatchResult.cs" />
     <Compile Include="Results\DiscardDispatchResult.cs" />
@@ -76,6 +101,7 @@
       <Name>MassTransit.Steward</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

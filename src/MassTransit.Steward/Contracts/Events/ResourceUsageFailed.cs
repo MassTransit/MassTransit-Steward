@@ -5,9 +5,9 @@
 
     /// <summary>
     /// When access to a resource fails, this event should be published. This event
-    /// may be correlated to a command.
+    /// may be correlated to a message.
     /// </summary>
-    public interface ResourceAccessFailed 
+    public interface ResourceUsageFailed 
     {
         /// <summary>
         /// A unique identifier for the event published
@@ -17,7 +17,7 @@
         /// <summary>
         /// The CommandId (if present) being executed when the resource access failed
         /// </summary>
-        Guid CommandId { get; }
+        Guid DispatchId { get; }
 
         /// <summary>
         /// The timestamp for when the resource access failed

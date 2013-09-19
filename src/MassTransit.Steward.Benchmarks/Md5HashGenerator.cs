@@ -1,0 +1,53 @@
+// Copyright 2007-2013 Chris Patterson
+//  
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the 
+// License at 
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0 
+// 
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// specific language governing permissions and limitations under the License.
+namespace MassTransit.Steward.Benchmarks
+{
+    using System;
+    using System.Security.Cryptography;
+    using System.Text;
+    using Core.Distribution.ConsistentHashing;
+
+
+    public class Md5HashGenerator :
+        HashGenerator
+    {
+        readonly HashAlgorithm _provider;
+
+        public Md5HashGenerator()
+        {
+            _provider = new MD5CryptoServiceProvider();
+        }
+
+        public uint Hash(string s)
+        {
+            Byte[] inputBytes = Encoding.UTF8.GetBytes(s);
+            _provider.ComputeHash(inputBytes);
+
+            return 0;
+        }
+
+        public uint Hash(byte[] data)
+        {
+            _provider.ComputeHash(data);
+
+            return 0;
+        }
+
+        public uint Hash(byte[] data, int offset, uint count, uint seed)
+        {
+            _provider.ComputeHash(data, offset, (int)count);
+
+            return 0;
+        }
+    }
+}

@@ -40,11 +40,11 @@ namespace MassTransit.Steward.Core.Distribution.ConsistentHashing
             }
         }
 
-        public unsafe uint Hash(byte[] data, int offset, uint len, uint seed)
+        public unsafe uint Hash(byte[] data, int offset, uint count, uint seed)
         {
             fixed (byte* input = &data[offset])
             {
-                return Hash(input, len, seed);
+                return Hash(input, count, seed);
             }
         }
 
